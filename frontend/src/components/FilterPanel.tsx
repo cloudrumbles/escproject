@@ -1,32 +1,24 @@
 import React from 'react';
+import { useAppContext } from '../hooks/useAppContext';
 
-export interface FilterState {
-  starRating: number[];
-  guestRating: number;
-  priceRange: [number, number];
-}
+const FilterPanel: React.FC = () => {
+  const { filters, setFilters } = useAppContext();
 
-interface FilterPanelProps {
-  filters: FilterState;
-  onFilterChange: (filters: FilterState) => void;
-}
-
-const FilterPanel: React.FC<FilterPanelProps> = ({ filters, onFilterChange }) => {
   const handleStarRatingChange = (star: number) => {
     const newStarRating = filters.starRating.includes(star)
       ? filters.starRating.filter(s => s !== star)
       : [...filters.starRating, star];
-    onFilterChange({ ...filters, starRating: newStarRating });
+    setFilters({ ...filters, starRating: newStarRating });
   };
 
   const handleGuestRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onFilterChange({ ...filters, guestRating: parseInt(event.target.value, 10) });
+    setFilters({ ...filters, guestRating: parseInt(event.target.value, 10) });
   };
 
   const handlePriceRangeChange = (index: number, value: number) => {
     const newPriceRange = [...filters.priceRange] as [number, number];
     newPriceRange[index] = value;
-    onFilterChange({ ...filters, priceRange: newPriceRange });
+    setFilters({ ...filters, priceRange: newPriceRange });
   };
 
   return (

@@ -19,33 +19,36 @@ const VirtualizedHotelList: React.FC<VirtualizedHotelListProps> = ({
   onLoadMore,
   onSelectHotel,
 }) => {
-  const itemCount = hotels.length + 1; // +1 for loading indicator
+  const itemCount = hotels.length + 1; // +1 for loading indicator or "end of list" message
+  
+  const isItemLoaded = useCallback((index: number) => index < hotels.length, [hotels.length]);
+
   const loadMoreItems = useCallback(() => {
     if (!isLoading) {
       onLoadMore();
     }
   }, [isLoading, onLoadMore]);
 
-  const isItemLoaded = useCallback((index: number) => index < hotels.length, [hotels.length]);
-
-  const rowRenderer = useCallback(
-    ({ index, style }: { index: number; style: React.CSSProperties }) => {
-      if (!isItemLoaded(index)) {
-        return (
-          <div style={style} className="flex items-center justify-center">
-            <div className="loading loading-spinner loading-lg"></div>
-          </div>
-        );
-      }
-      const hotel = hotels[index];
+  const renderRow = useCallback(({ index, style }: { index: number; style: React.CSSProperties }) => {
+    if (!isItemLoaded(index)) {
       return (
-        <div style={style}>
-          <HotelCard hotel={hotel} onSelect={onSelectHotel} />
+        <div style={style} className="flex items-center justify-center">
+          {isLoading ? (
+            <div className="loading loading-spinner loading-lg"></div>
+          ) : (
+            <div>End of list</div>
+          )}
         </div>
       );
-    },
-    [hotels, isItemLoaded, onSelectHotel]
-  );
+    }
+
+    const hotel = hotels[index];
+    return (
+      <div style={style}>
+        <HotelCard hotel={hotel} onSelect={onSelectHotel} />
+      </div>
+    );
+  }, [hotels, isItemLoaded, isLoading, onSelectHotel]);
 
   if (error) {
     return <div className="text-red-500">Error: {error.message}</div>;
@@ -66,7 +69,7 @@ const VirtualizedHotelList: React.FC<VirtualizedHotelListProps> = ({
           ref={ref}
           width="100%"
         >
-          {rowRenderer}
+          {renderRow}
         </List>
       )}
     </InfiniteLoader>

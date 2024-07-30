@@ -5,10 +5,19 @@ export interface Hotel {
     guestRating: number;
     price: number;
     image: string;
+    description: string;
   }
   
-  export interface FilterState {
-    starRating: number[];
-    guestRating: number;
-    priceRange: [number, number];
-  }
+export interface FilterState {
+starRating: number[];
+guestRating: number;
+priceRange: [number, number];
+}
+
+export interface Room {
+id: string;
+name: string;
+description: string;
+price: number;
+capacity: number;
+}

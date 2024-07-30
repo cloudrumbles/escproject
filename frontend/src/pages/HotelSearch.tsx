@@ -1,41 +1,30 @@
-import React, { useState } from 'react';
-import FilterPanel, { FilterState } from '../components/FilterPanel';
-import HotelAPIPoller from '../services/HotelAPIPoller';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import FilterPanel from '../components/FilterPanel';
 import VirtualizedHotelList from '../components/VirtualizedHotelList';
+import HotelAPIPoller from '../services/HotelAPIPoller';
 
-
-const initialFilters: FilterState = {
-  starRating: [],
-  guestRating: 0,
-  priceRange: [0, 1000]
-};
-
-const HotelSearchPage: React.FC = () => {
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
-  const [selectedHotel, setSelectedHotel] = useState<string | null>(null);
-
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
-  };
+const HotelSearch: React.FC = () => {
+  const navigate = useNavigate();
 
   const handleHotelSelect = (hotelId: string) => {
-    setSelectedHotel(hotelId);
-    // You can add additional logic here, like opening a modal or navigating to a details page
+    navigate(`/hotel/${hotelId}`);
   };
 
   return (
     <div className="flex h-screen">
       <div className="w-1/4 p-4 bg-gray-100">
-        <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
+        <FilterPanel />
       </div>
       <div className="w-3/4 p-4">
-        <HotelAPIPoller destinationId="example-destination" filters={filters}>
-          {({ hotels, isLoading, error, pollAgain }) => (
+        <HotelAPIPoller destinationId="example-destination">
+          {({ hotels, isLoading, error, fetchNextPage, hasNextPage }) => (
             <VirtualizedHotelList
               hotels={hotels}
               isLoading={isLoading}
               error={error}
-              onLoadMore={pollAgain}
+              onLoadMore={fetchNextPage}
+              hasNextPage={hasNextPage}
               onSelectHotel={handleHotelSelect}
             />
           )}
@@ -45,4 +34,4 @@ const HotelSearchPage: React.FC = () => {
   );
 };
 
-export default HotelSearchPage;
+export default HotelSearch;
