@@ -1,4 +1,8 @@
 import React, { createContext, useState } from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+// Create a client
+const queryClient = new QueryClient();
 
 export interface AppContextType {
   user: { name: string } | null;
@@ -11,8 +15,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [user, setUser] = useState<{ name: string } | null>(null);
 
   return (
-    <AppContext.Provider value={{ user, setUser }}>
-      {children}
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={{ user, setUser }}>
+        {children}
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
 };
