@@ -1,7 +1,6 @@
 import React, { createContext, useState } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
-// Create a client
 const queryClient = new QueryClient();
 
 export interface AppContextType {
