@@ -1,38 +1,22 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import FilterPanel from '../components/FilterPanel';
-import VirtualizedHotelList from '../components/VirtualizedHotelList';
-import HotelAPIPoller from '../services/HotelAPIPoller';
+import { useCallback } from 'react';
 import { useAppContext } from './useAppContext';
+import { fetchHotels } from '../services/api';
 
-const HotelSearch: React.FC = () => {
-  const { filters } = useAppContext();
-  const navigate = useNavigate();
+export const useHotelSearch = () => {
+  const { setHotels, filters, searchParams, setIsLoading, setError } = useAppContext();
 
-  const handleHotelSelect = (hotelId: string) => {
-    navigate(`/hotel/${hotelId}`);
-  };
+  const searchHotels = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const newHotels = await fetchHotels(searchParams, filters);
+      setHotels(newHotels);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('An error occurred'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchParams, filters, setHotels, setIsLoading, setError]);
 
-  return (
-    <div className="flex h-screen">
-      <div className="w-1/4 p-4 bg-gray-100">
-        <FilterPanel />
-      </div>
-      <div className="w-3/4 p-4">
-        <HotelAPIPoller destinationId="example-destination" filters={filters}>
-          {({ hotels, isLoading, error, pollAgain }) => (
-            <VirtualizedHotelList
-              hotels={hotels}
-              isLoading={isLoading}
-              error={error}
-              onLoadMore={pollAgain}
-              onSelectHotel={handleHotelSelect}
-            />
-          )}
-        </HotelAPIPoller>
-      </div>
-    </div>
-  );
+  return { searchHotels };
 };
-
-export default HotelSearch;

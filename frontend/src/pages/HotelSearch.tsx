@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FilterPanel from '../components/FilterPanel';
 import VirtualizedHotelList from '../components/VirtualizedHotelList';
-import HotelAPIPoller from '../services/HotelAPIPoller';
+import { useHotelSearch } from '../hooks/useHotelSearch';
+import { useAppContext } from '../hooks/useAppContext';
 
 const HotelSearch: React.FC = () => {
   const navigate = useNavigate();
+  const { hotels, isLoading, error, searchParams } = useAppContext();
+  const { searchHotels } = useHotelSearch();
+
+  useEffect(() => {
+    if (searchParams.destinationId) {
+      searchHotels();
+    }
+  }, [searchParams, searchHotels]);
 
   const handleHotelSelect = (hotelId: string) => {
     navigate(`/hotel/${hotelId}`);
@@ -14,21 +23,16 @@ const HotelSearch: React.FC = () => {
   return (
     <div className="flex h-screen">
       <div className="w-1/4 p-4 bg-gray-100">
-        <FilterPanel />
+        <FilterPanel onFilterChange={searchHotels} />
       </div>
       <div className="w-3/4 p-4">
-        <HotelAPIPoller destinationId="example-destination">
-          {({ hotels, isLoading, error, fetchNextPage, hasNextPage }) => (
-            <VirtualizedHotelList
-              hotels={hotels}
-              isLoading={isLoading}
-              error={error}
-              onLoadMore={fetchNextPage}
-              hasNextPage={hasNextPage}
-              onSelectHotel={handleHotelSelect}
-            />
-          )}
-        </HotelAPIPoller>
+        <VirtualizedHotelList
+          hotels={hotels}
+          isLoading={isLoading}
+          error={error}
+          onLoadMore={searchHotels}
+          onSelectHotel={handleHotelSelect}
+        />
       </div>
     </div>
   );
