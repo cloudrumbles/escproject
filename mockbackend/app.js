@@ -2,11 +2,14 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const cors = require('cors');
+
 
 const app = express();
 const port = 3100;
 
 // Middleware to parse JSON bodies
+app.use(cors());
 app.use(express.json());
 
 // Endpoint 1: Returns the first JSON file
