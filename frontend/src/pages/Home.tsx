@@ -49,7 +49,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, onFocus, onB
 
 // SuggestionsList component
 const SuggestionsList: React.FC<SuggestionsListProps> = ({ suggestions, onSelect }) => (
-  <ul className="absolute z-10 w-full max-w-2xl mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+  <ul className="absolute z-10 w-full max-w-2xl mt-1 bg-white border border-gray-300 rounded-md shadow-lg text-black">
     {suggestions.map((city, index) => (
       <li 
         key={index}

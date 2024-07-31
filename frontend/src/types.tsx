@@ -63,3 +63,24 @@ export interface Image_details {
     price: number;
     imageUrl: string;
   }
+
+  export interface HotelData {
+    name?: string;
+    address?: string;
+    rating?: number;
+    trustyou?: {
+      score?: {
+        overall?: number;
+      };
+    };
+    categories?: {
+      [key: string]: {
+        name?: string;
+        score?: number;
+      };
+    };
+    amenities_ratings?: Array<{
+      name?: string;
+      score?: number;
+    }>;
+  }
