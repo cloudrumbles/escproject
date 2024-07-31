@@ -63,7 +63,7 @@ const FilterPanel: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow">
+    <div className="bg-gray-900 p-4 rounded shadow">
       <h2 className="text-xl font-bold mb-4">Filters</h2>
       
       {/* Interface for selecting star ratings */}
@@ -88,7 +88,7 @@ const FilterPanel: React.FC = () => {
         <input
           type="range"
           min="0"
-          max="10"
+          max="5"
           value={guestRating}
           onChange={handleGuestRatingChange}
           className="w-full"

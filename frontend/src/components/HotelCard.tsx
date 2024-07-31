@@ -1,29 +1,26 @@
 import React from 'react';
-import { Hotel } from '../types';
+import { HotelCardProps } from '../types';
 
-interface HotelCardProps {
-  hotel: Hotel;
-  onSelect: (id: string) => void;
-}
-
-const HotelCard: React.FC<HotelCardProps> = React.memo(({ hotel, onSelect }) => (
-  <div className="card card-side bg-base-100 shadow-xl mb-4">
-    <figure><img src={hotel.image} alt={hotel.name} className="w-32 h-32 object-cover" /></figure>
-    <div className="card-body">
-      <h2 className="card-title">{hotel.name}</h2>
-      <p>Star Rating: {hotel.starRating}</p>
-      <p>Guest Rating: {hotel.guestRating}/10</p>
-      <p className="text-lg font-semibold">${hotel.price} per night</p>
-      <div className="card-actions justify-end">
-        <button 
-          onClick={() => onSelect(hotel.id)}
-          className="btn btn-primary"
-        >
-          Select
-        </button>
+const HotelCard: React.FC<HotelCardProps> = ({
+  name,
+  address,
+  starRating,
+  guestRating,
+  price,
+  imageUrl,
+}) => {
+  return (
+    <div className="border rounded-lg shadow-lg overflow-hidden">
+      <img src={imageUrl} alt={name} className="w-full h-48 object-cover" />
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-2">{name}</h2>
+        <p className="text-gray-600 mb-2">{address}</p>
+        <p className="text-yellow-500 mb-2">Star Rating: {starRating}/5</p>
+        <p className="text-yellow-500 mb-2">Guest Rating: {guestRating}/5</p>
+        <p className="text-green-500 mb-2">Price: ${price}</p>
       </div>
     </div>
-  </div>
-));
+  );
+};
 
 export default HotelCard;

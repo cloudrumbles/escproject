@@ -10,7 +10,25 @@ export interface Hotel {
     longitude: number;
     address: string;
     amenities: string[];
-  }
+    rating: number; 
+    imageCount: number;
+    categories: Categories[]; 
+    image_details: Image_details;
+    default_image_index: number;
+}
+
+export interface Categories {
+    [key: string]: {
+        name: string;
+        score: number;
+    };
+}
+
+export interface Image_details {
+    prefix: string;
+    count: number;
+    suffix: string;
+}
   
   export interface Room {
     id: string;
@@ -33,4 +51,15 @@ export interface Hotel {
     checkOut: string;
     guests: number;
     rooms: number;
+  }
+
+
+  export interface HotelCardProps {
+    id: string;
+    name: string;
+    address: string;
+    starRating: number;
+    guestRating: number;
+    price: number;
+    imageUrl: string;
   }
