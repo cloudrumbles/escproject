@@ -10,5 +10,13 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.ts'],
     exclude: [...configDefaults.exclude, 'e2e/*'],
     css: true,
+    reporters: ['html', 'default'],
+    coverage: {
+      exclude: ['src/setupTests.ts'],
+      provider: 'v8',
+      enabled: true,
+      reporter: ['text-summary', 'html'],
+      reportOnFailure: true,
+    },
   },
 })
