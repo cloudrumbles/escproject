@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PricingFilter from './PricingFilter';
+import PriceRange from './PriceRange';
 
 interface FilterState {
   star: number[];
@@ -85,8 +85,7 @@ const FilterPanel: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="font-semibold mb-2 text-white">Price Range</h3>
-        <PricingFilter />
+        <PriceRange />
       </div>
     </div>
   );
