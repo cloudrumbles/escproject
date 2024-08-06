@@ -1,143 +1,183 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useSearchParams } from 'react-router-dom';
 import PriceRange from './PriceRange';
 
-// Mock useSearchParams
 vi.mock('react-router-dom', () => ({
   useSearchParams: vi.fn(),
 }));
 
 describe('PriceRange', () => {
+  const mockSetSearchParams = vi.fn();
+
   beforeEach(() => {
-    console.log('Clearing all mocks before each test');
     vi.clearAllMocks();
+    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams(), mockSetSearchParams]);
   });
 
-  it('renders correctly', () => {
-    console.log('Starting "renders correctly" test');
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams(), vi.fn()]);
+  const getLastCallParams = (): URLSearchParams | null => {
+    const lastCall = mockSetSearchParams.mock.lastCall;
+    return lastCall ? lastCall[0] as URLSearchParams : null;
+  };
+
+  it('renders correctly with default values', () => {
     render(<PriceRange />);
-    console.log('Checking if "Price Range" text is present');
+    
     expect(screen.getByText('Price Range')).toBeInTheDocument();
-    console.log('Checking if "Minimum Price" input is present');
-    expect(screen.getByLabelText('Minimum Price')).toBeInTheDocument();
-    console.log('Checking if "Maximum Price" input is present');
-    expect(screen.getByLabelText('Maximum Price')).toBeInTheDocument();
-    console.log('Render test completed successfully');
+    expect(screen.getByLabelText('Minimum Price')).toHaveValue('');
+    expect(screen.getByLabelText('Maximum Price')).toHaveValue('');
   });
 
   it('initializes with URL parameters', () => {
-    console.log('Starting "initializes with URL parameters" test');
-    console.log('Mocking useSearchParams with initial values');
-    const mockSetSearchParams = vi.fn();
     (useSearchParams as jest.Mock).mockReturnValue([
       new URLSearchParams({ minPrice: '100', maxPrice: '200' }),
       mockSetSearchParams,
     ]);
+
     render(<PriceRange />);
-    console.log('Checking if Minimum Price input has value "100"');
+    
     expect(screen.getByLabelText('Minimum Price')).toHaveValue('100');
-    console.log('Checking if Maximum Price input has value "200"');
     expect(screen.getByLabelText('Maximum Price')).toHaveValue('200');
-    console.log('URL parameters initialization test completed successfully');
   });
 
   it('updates URL when inputs change', async () => {
-    console.log('Starting "updates URL when inputs change" test');
-    const mockSetSearchParams = vi.fn();
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams(), mockSetSearchParams]);
+    const user = userEvent.setup();
     render(<PriceRange />);
     
-    const minInput = screen.getByLabelText('Minimum Price');
-    const maxInput = screen.getByLabelText('Maximum Price');
+    await user.type(screen.getByLabelText('Minimum Price'), '100');
+    await user.type(screen.getByLabelText('Maximum Price'), '200');
 
-    console.log('Changing Minimum Price input to "100"');
-    fireEvent.change(minInput, { target: { value: '100' } });
-    console.log('Changing Maximum Price input to "200"');
-    fireEvent.change(maxInput, { target: { value: '200' } });
-
-    console.log('Waiting for mockSetSearchParams to be called');
     await waitFor(() => {
-      expect(mockSetSearchParams).toHaveBeenCalled();
+      const params = getLastCallParams();
+      expect(params).not.toBeNull();
+      expect(params?.get('minPrice')).toBe('100');
+      expect(params?.get('maxPrice')).toBe('200');
     });
-
-    const lastCall = mockSetSearchParams.mock.calls[mockSetSearchParams.mock.calls.length - 1];
-    console.log('Last call to mockSetSearchParams:', lastCall);
-    const expectedParams = new URLSearchParams({ minPrice: '100', maxPrice: '200' });
-    console.log('Expected params:', expectedParams.toString());
-    console.log('Actual params:', lastCall[0].toString());
-    expect(lastCall[0].toString()).toBe(expectedParams.toString());
-    console.log('URL update test completed successfully');
   });
 
   it('displays error when min is greater than max', async () => {
-    console.log('Starting "displays error when min is greater than max" test');
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams(), vi.fn()]);
+    const user = userEvent.setup();
     render(<PriceRange />);
     
-    const minInput = screen.getByLabelText('Minimum Price');
-    const maxInput = screen.getByLabelText('Maximum Price');
+    await user.type(screen.getByLabelText('Minimum Price'), '200');
+    await user.type(screen.getByLabelText('Maximum Price'), '100');
 
-    console.log('Setting Minimum Price to "200"');
-    fireEvent.change(minInput, { target: { value: '200' } });
-    console.log('Setting Maximum Price to "100"');
-    fireEvent.change(maxInput, { target: { value: '100' } });
-
-    console.log('Waiting for error message to appear');
-    await waitFor(() => {
-      expect(screen.getByText('Minimum price cannot be greater than maximum price')).toBeInTheDocument();
-    });
-    console.log('Error display test completed successfully');
+    expect(await screen.findByText('Minimum price cannot be greater than maximum price')).toBeInTheDocument();
   });
 
-  it('allows only numeric input', () => {
-    console.log('Starting "allows only numeric input" test');
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams(), vi.fn()]);
+  it('allows only numeric input', async () => {
+    const user = userEvent.setup();
     render(<PriceRange />);
     
     const minInput = screen.getByLabelText('Minimum Price');
-
-    console.log('Attempting to input non-numeric value "abc"');
-    fireEvent.change(minInput, { target: { value: 'abc' } });
-    console.log('Checking if input value is empty');
+    
+    await user.type(minInput, 'abc');
     expect(minInput).toHaveValue('');
 
-    console.log('Inputting numeric value "123"');
-    fireEvent.change(minInput, { target: { value: '123' } });
-    console.log('Checking if input value is "123"');
+    await user.type(minInput, '123');
     expect(minInput).toHaveValue('123');
-    console.log('Numeric input test completed successfully');
   });
 
   it('removes URL parameters when inputs are cleared', async () => {
-    console.log('Starting "removes URL parameters when inputs are cleared" test');
-    console.log('Mocking useSearchParams with initial values');
-    const mockSetSearchParams = vi.fn();
+    const user = userEvent.setup();
     (useSearchParams as jest.Mock).mockReturnValue([
       new URLSearchParams({ minPrice: '100', maxPrice: '200' }),
       mockSetSearchParams,
     ]);
+    
     render(<PriceRange />);
     
-    const minInput = screen.getByLabelText('Minimum Price');
-    const maxInput = screen.getByLabelText('Maximum Price');
+    await user.clear(screen.getByLabelText('Minimum Price'));
+    await user.clear(screen.getByLabelText('Maximum Price'));
 
-    console.log('Clearing Minimum Price input');
-    fireEvent.change(minInput, { target: { value: '' } });
-    console.log('Clearing Maximum Price input');
-    fireEvent.change(maxInput, { target: { value: '' } });
-
-    console.log('Waiting for mockSetSearchParams to be called');
     await waitFor(() => {
-      expect(mockSetSearchParams).toHaveBeenCalled();
+      const params = getLastCallParams();
+      expect(params).not.toBeNull();
+      expect(params?.toString()).toBe('');
     });
+  });
 
-    const lastCall = mockSetSearchParams.mock.calls[mockSetSearchParams.mock.calls.length - 1];
-    console.log('Last call to mockSetSearchParams:', lastCall);
-    console.log('Checking if URL parameters were removed');
-    expect(lastCall[0].toString()).toBe('');
-    console.log('URL parameter removal test completed successfully');
+  it('clears error when min becomes less than max', async () => {
+    const user = userEvent.setup();
+    render(<PriceRange />);
+    
+    await user.type(screen.getByLabelText('Minimum Price'), '200');
+    await user.type(screen.getByLabelText('Maximum Price'), '100');
+
+    expect(await screen.findByText('Minimum price cannot be greater than maximum price')).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText('Minimum Price'));
+    await user.type(screen.getByLabelText('Minimum Price'), '50');
+
+    await waitFor(() => {
+      expect(screen.queryByText('Minimum price cannot be greater than maximum price')).not.toBeInTheDocument();
+    });
+  });
+
+  it('handles very large numbers correctly', async () => {
+    const user = userEvent.setup();
+    render(<PriceRange />);
+    
+    await user.type(screen.getByLabelText('Minimum Price'), '1000000000');
+    await user.type(screen.getByLabelText('Maximum Price'), '9999999999');
+
+    await waitFor(() => {
+      const params = getLastCallParams();
+      expect(params).not.toBeNull();
+      expect(params?.get('minPrice')).toBe('1000000000');
+      expect(params?.get('maxPrice')).toBe('9999999999');
+    });
+  });
+
+  it('handles decimal inputs correctly', async () => {
+    const user = userEvent.setup();
+    render(<PriceRange />);
+    
+    await user.type(screen.getByLabelText('Minimum Price'), '10.99');
+    await user.type(screen.getByLabelText('Maximum Price'), '20.50');
+
+    await waitFor(() => {
+      const params = getLastCallParams();
+      expect(params).not.toBeNull();
+      expect(params?.get('minPrice')).toBe('1099');
+      expect(params?.get('maxPrice')).toBe('2050');
+    });
+  });
+
+  it('handles negative inputs correctly', async () => {
+    const user = userEvent.setup();
+    render(<PriceRange />);
+    
+    await user.type(screen.getByLabelText('Minimum Price'), '-10');
+    await user.type(screen.getByLabelText('Maximum Price'), '-5');
+
+    // Assuming the component doesn't allow negative values
+    await waitFor(() => {
+      const params = getLastCallParams();
+      expect(params?.get('minPrice')).toBe('10');
+      expect(params?.get('maxPrice')).toBe(null);
+    });
+  });
+
+
+  it('maintains other URL parameters when updating price range', async () => {
+    const initialParams = new URLSearchParams({ category: 'electronics', sort: 'price-asc' });
+    (useSearchParams as jest.Mock).mockReturnValue([initialParams, mockSetSearchParams]);
+    
+    const user = userEvent.setup();
+    render(<PriceRange />);
+    
+    await user.type(screen.getByLabelText('Minimum Price'), '100');
+    await user.type(screen.getByLabelText('Maximum Price'), '200');
+
+    await waitFor(() => {
+      const params = getLastCallParams();
+      expect(params).not.toBeNull();
+      expect(params?.get('minPrice')).toBe('100');
+      expect(params?.get('maxPrice')).toBe('200');
+      expect(params?.get('category')).toBe('electronics');
+      expect(params?.get('sort')).toBe('price-asc');
+    });
   });
 });

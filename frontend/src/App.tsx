@@ -4,6 +4,7 @@ import { AppProvider } from './contexts/AppContext';
 import Layout from './components/Layout';
 import Routes from './routes';
 
+
 const App: React.FC = () => {
   return (
     <AppProvider>

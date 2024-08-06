@@ -1,58 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FilterPanel from '../components/FilterPanel';
 import HotelCardList from '../components/HotelCardList';
-import { HotelCardProps } from '../types';
-import axios from 'axios';
+import useHotels from '../hooks/useHotels';
+import useFilteredHotels from '../hooks/useFilteredHotels';
+
 
 const HotelSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [hotels, setHotels] = useState<HotelCardProps[]>([]);
-  const [filteredHotels, setFilteredHotels] = useState<HotelCardProps[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const searchHotels = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get<HotelCardProps[]>('http://localhost:3100/api/hotels');
-      setHotels(response.data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch hotels. Please try again.'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    searchHotels();
-  }, [searchHotels]);
-
-  useEffect(() => {
-    const applyFilters = () => {
-      let result = hotels;
-
-      // Filter by star rating
-      const starRatings = searchParams.getAll('star').map(Number);
-      if (starRatings.length > 0) {
-        result = result.filter(hotel => starRatings.includes(hotel.starRating));
-      }
-
-      // Filter by guest rating
-      const guestRating = Number(searchParams.get('guest')) || 0;
-      result = result.filter(hotel => hotel.guestRating >= guestRating);
-
-      // Filter by price range
-      const priceMin = Number(searchParams.get('priceMin')) || 0;
-      const priceMax = Number(searchParams.get('priceMax')) || Infinity;
-      result = result.filter(hotel => hotel.price >= priceMin && hotel.price <= priceMax);
-
-      setFilteredHotels(result);
-    };
-
-    applyFilters();
-  }, [searchParams, hotels]);
+  const { hotels, isLoading, error, refetch } = useHotels();
+  const filteredHotels = useFilteredHotels(hotels, searchParams);
 
   return (
     <div className="flex h-[calc(100vh-64px)]">
