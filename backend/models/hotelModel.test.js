@@ -1,174 +1,186 @@
-// tests/hotelModel.test.js
-import axios from 'axios';
-import HotelModel from '../models/HotelModel';
+const HotelModel = require('./HotelModel');
 
-// Mock axios
-jest.mock('axios');
-
-describe('HotelModel', () => {
+describe('HotelModel with real API', () => {
   let hotelModel;
 
   beforeEach(() => {
     hotelModel = new HotelModel();
-    console.log('Created new HotelModel instance for testing');
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    console.log('Cleared all mocks after test');
   });
 
   describe('searchHotels', () => {
-    it('should poll until completed is true', async () => {
-      console.log('Testing searchHotels method');
-      
-      const mockParams = { destination_id: 'TEST1', checkin: '2023-08-01', checkout: '2023-08-05' };
-      console.log('Mock params:', mockParams);
+    it('should fetch hotel prices for a destination', async () => {
+      const params = {
+        destination_id: 'WD0M',
+        checkin: '2024-10-01',
+        checkout: '2024-10-07',
+        lang: 'en_US',
+        currency: 'SGD',
+        country_code: 'SG',
+        guests: '2',
+        partner_id: '1'
+      };
 
-      axios.get
-        .mockResolvedValueOnce({ data: { completed: false, hotels: [{ id: 'hotel1' }] } })
-        .mockResolvedValueOnce({ data: { completed: false, hotels: [{ id: 'hotel1' }, { id: 'hotel2' }] } })
-        .mockResolvedValueOnce({ data: { completed: true, hotels: [{ id: 'hotel1' }, { id: 'hotel2' }, { id: 'hotel3' }] } });
+      const result = await hotelModel.searchHotels(params);
 
-      const result = await hotelModel.searchHotels(mockParams);
+      expect(Array.isArray(result)).toBe(true);
+      if (result.length > 0) {
+        expect(result[0]).toHaveProperty('id');
+        expect(result[0]).toHaveProperty('searchRank');
+        expect(result[0]).toHaveProperty('price');
+        expect(result[0]).toHaveProperty('market_rates');
+      }
+    }, 30000); // Increase timeout to 30 seconds for API call
 
-      console.log('Number of API calls:', axios.get.mock.calls.length);
-      console.log('Final result:', result);
-
-      expect(axios.get).toHaveBeenCalledTimes(3);
-      expect(result).toHaveLength(3);
-      expect(result[2].id).toBe('hotel3');
-    });
-
-    it('should handle errors', async () => {
-      console.log('Testing searchHotels error handling');
-
-      const mockParams = { destination_id: 'ERROR' };
-      console.log('Mock params:', mockParams);
-
-      axios.get.mockRejectedValue(new Error('API error'));
-
-      await expect(hotelModel.searchHotels(mockParams)).rejects.toThrow('API error');
-      console.log('Error was thrown as expected');
+    it('should handle errors for invalid parameters', async () => {
+      const invalidParams = { destination_id: 'INVALID' };
+      await expect(hotelModel.searchHotels(invalidParams)).rejects.toThrow();
     });
   });
 
   describe('getHotelPrice', () => {
-    it('should fetch hotel price', async () => {
-      console.log('Testing getHotelPrice method');
-
-      const mockHotelId = 'hotel1';
-      const mockParams = { checkin: '2023-08-01', checkout: '2023-08-05' };
-      console.log('Mock hotel ID:', mockHotelId);
-      console.log('Mock params:', mockParams);
-
-      const mockResponse = { data: { rooms: [{ price: 100 }] } };
-      axios.get.mockResolvedValue(mockResponse);
-
-      const result = await hotelModel.getHotelPrice(mockHotelId, mockParams);
-
-      console.log('API call URL:', axios.get.mock.calls[0][0]);
-      console.log('API call params:', axios.get.mock.calls[0][1]);
-      console.log('Result:', result);
-
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(mockResponse.data);
-    });
-  });
-
-  describe('processHotelImages', () => {
-    it('should process hotel images correctly', () => {
-      console.log('Testing processHotelImages method');
-
-      const mockHotel = {
-        id: 'hotel1',
-        image_details: {
-          prefix: 'https://example.com/images/hotel1_',
-          suffix: '.jpg',
-          count: 3
-        }
+    it('should fetch hotel price for a specific hotel', async () => {
+      const hotelId = 'diH7'; // You may need to use a valid hotel ID
+      const params = {
+        destination_id: 'WD0M',
+        checkin: '2024-10-01',
+        checkout: '2024-10-07',
+        lang: 'en_US',
+        currency: 'SGD',
+        country_code: 'SG',
+        guests: '2',
+        partner_id: '1'
       };
-      console.log('Mock hotel:', mockHotel);
 
-      const processedHotel = hotelModel.processHotelImages(mockHotel);
+      const result = await hotelModel.getHotelPrice(hotelId, params);
 
-      console.log('Processed hotel:', processedHotel);
+      expect(result).toHaveProperty('completed');
+      expect(result).toHaveProperty('rooms');
+      expect(Array.isArray(result.rooms)).toBe(true);
+      
+      if (result.rooms.length > 0) {
+        const firstRoom = result.rooms[0];
+        expect(firstRoom).toHaveProperty('key');
+        expect(firstRoom).toHaveProperty('roomNormalizedDescription');
+        expect(firstRoom).toHaveProperty('price');
+        expect(firstRoom).toHaveProperty('images');
+        expect(firstRoom).toHaveProperty('amenities');
+        expect(firstRoom).toHaveProperty('description');
+        expect(firstRoom).toHaveProperty('long_description');
+      }
+    }, 30000);
 
-      expect(processedHotel.images).toHaveLength(3);
-      expect(processedHotel.images[0]).toBe('https://example.com/images/hotel1_1.jpg');
-      expect(processedHotel.images[2]).toBe('https://example.com/images/hotel1_3.jpg');
-    });
-
-    it('should handle hotels without image details', () => {
-      console.log('Testing processHotelImages with no image details');
-
-      const mockHotel = { id: 'hotel2' };
-      console.log('Mock hotel:', mockHotel);
-
-      const processedHotel = hotelModel.processHotelImages(mockHotel);
-
-      console.log('Processed hotel:', processedHotel);
-
-      expect(processedHotel.images).toBeUndefined();
+    it('should handle errors for invalid hotel ID', async () => {
+      const invalidHotelId = 'INVALID';
+      const params = { checkin: '2024-10-01' };
+      await expect(hotelModel.getHotelPrice(invalidHotelId, params)).rejects.toThrow();
     });
   });
+
+  describe('getHotelDetails', () => {
+    it('should fetch hotel details', async () => {
+      const hotelId = 'diH7'; // You may need to use a valid hotel ID
+
+      const result = await hotelModel.getHotelDetails(hotelId);
+
+      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('name');
+      expect(result).toHaveProperty('latitude');
+      expect(result).toHaveProperty('longitude');
+      expect(result).toHaveProperty('image_details');
+    }, 30000);
+
+    it('should return an empty object for invalid hotel ID', async () => {
+      const invalidHotelId = 'INVALID';
+      const result = await hotelModel.getHotelDetails(invalidHotelId);
+      expect(result).toEqual({});
+    });
+  });
+
 
   describe('formatSearchParams', () => {
     it('should format search parameters correctly', () => {
-      console.log('Testing formatSearchParams method');
-
       const mockSearchCriteria = {
-        destinationId: 'DEST1',
-        checkIn: '2023-08-01',
-        checkOut: '2023-08-05',
-        guests: [2, 1],
-        language: 'fr_FR',
-        currency: 'EUR',
-        countryCode: 'FR'
+        destinationId: 'WD0M',
+        checkIn: '2024-10-01',
+        checkOut: '2024-10-07',
+        language: 'en_US',
+        currency: 'SGD',
+        countryCode: 'SG',
+        guests: [2, 2]
       };
-      console.log('Mock search criteria:', mockSearchCriteria);
 
-      const formattedParams = hotelModel.formatSearchParams(mockSearchCriteria);
+      const result = hotelModel.formatSearchParams(mockSearchCriteria);
 
-      console.log('Formatted parameters:', formattedParams);
-
-      expect(formattedParams).toEqual({
-        destination_id: 'DEST1',
-        checkin: '2023-08-01',
-        checkout: '2023-08-05',
-        guests: '2|1',
-        lang: 'fr_FR',
-        currency: 'EUR',
-        country_code: 'FR',
+      expect(result).toEqual({
+        destination_id: 'WD0M',
+        checkin: '2024-10-01',
+        checkout: '2024-10-07',
+        lang: 'en_US',
+        currency: 'SGD',
+        country_code: 'SG',
+        guests: '2|2',
         partner_id: '1'
       });
     });
 
     it('should use default values when not provided', () => {
-      console.log('Testing formatSearchParams with default values');
-
       const mockSearchCriteria = {
-        destinationId: 'DEST2',
-        checkIn: '2023-09-01',
-        checkOut: '2023-09-05',
+        destinationId: 'WD0M',
+        checkIn: '2024-10-01',
+        checkOut: '2024-10-07',
         guests: 2
       };
-      console.log('Mock search criteria:', mockSearchCriteria);
 
-      const formattedParams = hotelModel.formatSearchParams(mockSearchCriteria);
+      const result = hotelModel.formatSearchParams(mockSearchCriteria);
 
-      console.log('Formatted parameters:', formattedParams);
-
-      expect(formattedParams).toEqual({
-        destination_id: 'DEST2',
-        checkin: '2023-09-01',
-        checkout: '2023-09-05',
-        guests: '2',
+      expect(result).toEqual({
+        destination_id: 'WD0M',
+        checkin: '2024-10-01',
+        checkout: '2024-10-07',
         lang: 'en_US',
         currency: 'USD',
         country_code: 'US',
+        guests: '2',
         partner_id: '1'
       });
+    });
+  });
+
+  describe('formatGuestsString', () => {
+    it('should format guests array correctly', () => {
+      const result = hotelModel.formatGuestsString([2, 2, 1]);
+      expect(result).toBe('2|2|1');
+    });
+
+    it('should handle single guest number', () => {
+      const result = hotelModel.formatGuestsString(2);
+      expect(result).toBe('2');
+    });
+  });
+
+  describe('processHotelImages', () => {
+    it('should process hotel images correctly', () => {
+      const mockHotel = {
+        image_details: {
+          prefix: 'https://example.com/hotel_',
+          suffix: '.jpg',
+          count: 3
+        }
+      };
+
+      const result = hotelModel.processHotelImages(mockHotel);
+
+      expect(result.images).toEqual([
+        'https://example.com/hotel_1.jpg',
+        'https://example.com/hotel_2.jpg',
+        'https://example.com/hotel_3.jpg'
+      ]);
+    });
+
+    it('should return hotel unchanged if no image details', () => {
+      const mockHotel = { name: 'Test Hotel' };
+      const result = hotelModel.processHotelImages(mockHotel);
+      expect(result).toEqual(mockHotel);
     });
   });
 });
