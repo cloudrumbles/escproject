@@ -1,0 +1,15 @@
+GET http://localhost:3001/api/hotels/diH7
+
+
+###
+GET http://localhost:3001/api/hotels/search
+
+###
+
+GET http://localhost:3001/api/hotels/search/?destinationId=WD0M&checkIn=2024-10-01&checkOut=2024-10-07&guests=2 
+
+###
+GET http://localhost:3001/api/hotels/search/?destinationId=WD0M&checkIn=2024-10-01&checkOut=2024-10-07&guests=1&rooms=1
+
+###
+GET http://localhost:3001/api/hotels/search/?destinationId=WD0M&checkIn=2024-11-01&checkOut=2024-11-07&guests=1&rooms=1

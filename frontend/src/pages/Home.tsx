@@ -195,10 +195,14 @@ const Home: React.FC = () => {
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (searchParams.destination.trim() && searchParams.checkInDate && searchParams.checkOutDate) {
+      const formatDate = (date: Date) => {
+        return date.toISOString().split('T')[0]; // This will return YYYY-MM-DD
+      };
+  
       const params = new URLSearchParams({
         city: searchParams.destination,
-        checkIn: searchParams.checkInDate.toISOString(),
-        checkOut: searchParams.checkOutDate.toISOString(),
+        checkIn: formatDate(searchParams.checkInDate),
+        checkOut: formatDate(searchParams.checkOutDate),
         guests: searchParams.guests.toString(),
         rooms: searchParams.rooms.toString()
       });

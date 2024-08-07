@@ -1,7 +1,12 @@
 {
   "dependencies": {
     "@testing-library/jest-dom": "^6.4.8",
-    "@testing-library/react": "^16.0.0",
-    "vitest": "^2.0.5"
+    "@testing-library/react": "^16.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }

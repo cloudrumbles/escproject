@@ -4,11 +4,20 @@ import FilterPanel from '../components/FilterPanel';
 import HotelCardList from '../components/HotelCardList';
 import useHotels from '../hooks/useHotels';
 import useFilteredHotels from '../hooks/useFilteredHotels';
+import { SearchParams } from '../types';
 
 
 const HotelSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const { hotels, isLoading, error, refetch } = useHotels();
+
+  const initialSearchParams: SearchParams = {
+    destinationId: searchParams.get('city') || '',
+    checkIn: searchParams.get('checkIn') || '',
+    checkOut: searchParams.get('checkOut') || '',
+    guests: parseInt(searchParams.get('guests') || '1', 10),
+    rooms: parseInt(searchParams.get('rooms') || '1', 10),
+  };
+  const { hotels, isLoading, error, refetch } = useHotels(initialSearchParams);
   const filteredHotels = useFilteredHotels(hotels, searchParams);
 
   return (

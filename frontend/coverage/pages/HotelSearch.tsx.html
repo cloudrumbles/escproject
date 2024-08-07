@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>33/33</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>33/33</span>
             </div>
         
             
@@ -93,7 +93,16 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -101,27 +110,36 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -129,11 +147,20 @@ import FilterPanel from '../components/FilterPanel';
 import HotelCardList from '../components/HotelCardList';
 import useHotels from '../hooks/useHotels';
 import useFilteredHotels from '../hooks/useFilteredHotels';
+import { SearchParams } from '../types';
 &nbsp;
 &nbsp;
 const HotelSearch: React.FC = () =&gt; {
   const [searchParams] = useSearchParams();
-  const { hotels, isLoading, error, refetch } = useHotels();
+&nbsp;
+  const initialSearchParams: SearchParams = {
+    destinationId: searchParams.get('city') || '',
+    checkIn: searchParams.get('checkIn') || '',
+    checkOut: searchParams.get('checkOut') || '',
+    guests: parseInt(searchParams.get('guests') || '1', 10),
+    rooms: parseInt(searchParams.get('rooms') || '1', 10),
+  };
+  const { hotels, isLoading, error, refetch } = useHotels(initialSearchParams);
   const filteredHotels = useFilteredHotels(hotels, searchParams);
 &nbsp;
   return (
@@ -144,8 +171,8 @@ const HotelSearch: React.FC = () =&gt; {
       &lt;div className="w-3/4 p-4 flex flex-col"&gt;
         &lt;div className="flex-grow overflow-y-auto"&gt;
           {isLoading &amp;&amp; &lt;div&gt;Loading...&lt;/div&gt;}
-          {<span class="branch-0 cbranch-no" title="branch not covered" >error &amp;&amp; &lt;div&gt;Error: {error.message}&lt;/div&gt;}</span>
-          {!isLoading &amp;&amp; !error &amp;&amp; filteredHotels.length &gt; 0 &amp;&amp; &lt;HotelCardList hotels={filteredHotels} /&gt;}
+          {error &amp;&amp; &lt;div&gt;Error: {error.message}&lt;/div&gt;}
+          {!isLoading &amp;&amp; !error &amp;&amp; filteredHotels.length &gt; <span class="branch-0 cbranch-no" title="branch not covered" >0 &amp;&amp; &lt;HotelCardList hotels={filteredHotels} /&gt;}</span>
           {!isLoading &amp;&amp; !error &amp;&amp; filteredHotels.length === 0 &amp;&amp; &lt;div&gt;No hotels found matching the current filters.&lt;/div&gt;}
         &lt;/div&gt;
       &lt;/div&gt;
@@ -160,7 +187,7 @@ export default HotelSearch;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-08-06T21:09:31.652Z
+                at 2024-08-07T05:37:39.403Z
             </div>
         <script src="../prettify.js"></script>
         <script>
