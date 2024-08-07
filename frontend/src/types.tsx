@@ -46,9 +46,9 @@ export interface Image_details {
   }
   
   export interface SearchParams {
-    destinationId: string;
-    checkIn: string;
-    checkOut: string;
+    destination_id: string;
+    checkin: string;
+    checkout: string;
     guests: number;
     rooms: number;
   }

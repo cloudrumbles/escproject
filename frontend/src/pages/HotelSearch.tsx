@@ -11,9 +11,9 @@ const HotelSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const initialSearchParams: SearchParams = {
-    destinationId: searchParams.get('city') || '',
-    checkIn: searchParams.get('checkIn') || '',
-    checkOut: searchParams.get('checkOut') || '',
+    destination_id: searchParams.get('destination_id') || '',
+    checkin: searchParams.get('checkin') || '',
+    checkout: searchParams.get('checkout') || '',
     guests: parseInt(searchParams.get('guests') || '1', 10),
     rooms: parseInt(searchParams.get('rooms') || '1', 10),
   };

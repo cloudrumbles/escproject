@@ -200,9 +200,9 @@ const Home: React.FC = () => {
       };
   
       const params = new URLSearchParams({
-        city: searchParams.destination,
-        checkIn: formatDate(searchParams.checkInDate),
-        checkOut: formatDate(searchParams.checkOutDate),
+        destination_id: searchParams.destination,
+        checkin: formatDate(searchParams.checkInDate),
+        checkout: formatDate(searchParams.checkOutDate),
         guests: searchParams.guests.toString(),
         rooms: searchParams.rooms.toString()
       });

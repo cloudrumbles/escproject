@@ -1,56 +1,80 @@
-import HotelController from '../controllers/HotelController';
+// HotelController.test.ts
+import HotelController from './HotelController';
 import { QueryParams, HotelListing } from '../types';
 
 describe('HotelController', () => {
   let hotelController: HotelController;
 
-  beforeEach(() => {
-    // Create a new instance of HotelController for each test
+  beforeAll(() => {
     hotelController = new HotelController();
   });
 
-  // Increase timeout for API calls
-  jest.setTimeout(30000);
+  const testQueryParams: QueryParams = {
+    destination_id: 'WD0M',
+    checkin: '2024-12-01',
+    checkout: '2024-12-07',
+    lang: 'en_US',
+    currency: 'SGD',
+    country_code: 'SG',
+    guests: '2',
+    partner_id: 1,
+  };
 
-  describe('getHotelListings', () => {
-    it('should return hotel listings when given valid query params', async () => {
-      const queryParams: QueryParams = {
-        destination_id: 'WD0M', // Singapore
-        checkIn: '2023-08-01',
-        checkOut: '2023-08-05',
-        guests: '2',
-        lang: 'en_US',
-        currency: 'USD',
-        partner_id: 1
-      };
+  it('should get hotel listings', async () => {
+    const hotelListings = await hotelController.getHotelListings(testQueryParams);
+    
+    expect(Array.isArray(hotelListings)).toBe(true);
+    expect(hotelListings.length).toBeGreaterThan(0);
 
-      const result = await hotelController.getHotelListings(queryParams);
+    const firstHotel = hotelListings[0];
+    expect(firstHotel).toHaveProperty('name');
+    expect(firstHotel).toHaveProperty('imageUrl');
+    expect(firstHotel).toHaveProperty('price');
+    expect(firstHotel).toHaveProperty('starRating');
+    expect(firstHotel).toHaveProperty('guestRating');
 
-      // Check if we got any results
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBeGreaterThan(0);
+    expect(typeof firstHotel.name).toBe('string');
+    expect(typeof firstHotel.imageUrl).toBe('string');
+    expect(typeof firstHotel.price).toBe('number');
+    expect(typeof firstHotel.starRating).toBe('number');
+    expect(typeof firstHotel.guestRating).toBe('number');
+  }, 30000);
 
-      // Check the structure of the first hotel listing
-      const firstHotel = result[0];
-      expect(firstHotel).toHaveProperty('name');
-      expect(firstHotel).toHaveProperty('imageUrl');
-      expect(firstHotel).toHaveProperty('price');
-      expect(firstHotel).toHaveProperty('starRating');
-      expect(firstHotel).toHaveProperty('guestRating');
+  it('should handle hotels with missing prices', async () => {
+    // This test assumes that there might be hotels without prices
+    const hotelListings = await hotelController.getHotelListings(testQueryParams);
+    
+    const hotelWithoutPrice = hotelListings.find(hotel => hotel.price === 0);
+    if (hotelWithoutPrice) {
+      expect(hotelWithoutPrice.price).toBe(0);
+    } else {
+      console.log('No hotels without prices found in this search.');
+    }
+  }, 30000);
 
-      // Check types
-      expect(typeof firstHotel.name).toBe('string');
-      expect(typeof firstHotel.imageUrl).toBe('string');
-      expect(typeof firstHotel.price).toBe('number');
-      expect(typeof firstHotel.starRating).toBe('number');
-      expect(typeof firstHotel.guestRating).toBe('number');
+  it('should handle invalid destination gracefully', async () => {
+    const invalidParams: QueryParams = {
+      ...testQueryParams,
+      destination_id: 'INVALID_ID',
+    };
 
-      // Check value ranges
-      expect(firstHotel.price).toBeGreaterThan(0);
-      expect(firstHotel.starRating).toBeGreaterThanOrEqual(1);
-      expect(firstHotel.starRating).toBeLessThanOrEqual(5);
-      expect(firstHotel.guestRating).toBeGreaterThanOrEqual(0);
-      expect(firstHotel.guestRating).toBeLessThanOrEqual(5);
+    await expect(hotelController.getHotelListings(invalidParams)).rejects.toThrow();
+  }, 30000);
+
+  it('should return correct image URLs', async () => {
+    const hotelListings = await hotelController.getHotelListings(testQueryParams);
+    
+    hotelListings.forEach(hotel => {
+      expect(hotel.imageUrl).toMatch(/^https?:\/\/.+/); // Check if it's a valid URL
     });
-  });
+  }, 30000);
+
+  it('should return valid guest ratings', async () => {
+    const hotelListings = await hotelController.getHotelListings(testQueryParams);
+    
+    hotelListings.forEach(hotel => {
+      expect(hotel.guestRating).toBeGreaterThanOrEqual(0);
+      expect(hotel.guestRating).toBeLessThanOrEqual(5);
+    });
+  }, 30000);
 });

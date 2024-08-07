@@ -14,10 +14,9 @@ const useHotels = (initialSearchParams: SearchParams) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get<HotelCardProps[]>('/hotels/search/', {
+      const response = await api.get<HotelCardProps[]>('/hotels', {
         params: searchParams
       });
-      console.log(searchParams);
       setHotels(response.data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch hotels'));

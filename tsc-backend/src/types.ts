@@ -111,12 +111,13 @@ export interface MapCoordinates {
 
 export interface QueryParams {
     destination_id: string;
-    checkIn: string;
-    checkOut: string;
+    checkin: string;
+    checkout: string;
     lang: string;
     currency: string;
     guests: string;
     partner_id: number;
+    country_code: string;
 }
 
 export interface DestinationSuggestion {

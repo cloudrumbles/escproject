@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const HotelModel = require('../models/HotelModel');
+const HotelController = require('../controllers/HotelController');
 
-const hotelModel = new HotelModel();
+const hotelController = new HotelController();
 
 router.get('/test', (req, res) => {
   res.send('Hello World!');
@@ -10,34 +11,32 @@ router.get('/test', (req, res) => {
 
 router.get('/hotels/search', async (req, res) => {
   try {
-    const searchCriteria = {
-      destinationId: req.query.destinationId,
+    const queryParams = {
+      destination_id: req.query.destinationId,
       checkIn: req.query.checkIn,
       checkOut: req.query.checkOut,
       guests: req.query.guests,
-      language: req.query.language,
-      currency: req.query.currency,
-      countryCode: req.query.countryCode
+      lang: req.query.language || 'en_US',
+      currency: req.query.currency || 'SGD',
+      country_code: req.query.countryCode || 'SG',
+      partner_id: 1 // Assuming this is a constant value
     };
-
+    
+    console.log('Searching hotels with query params:', queryParams);
     // Validate required parameters
-    if (!searchCriteria.destinationId || !searchCriteria.checkIn || !searchCriteria.checkOut || !searchCriteria.guests) {
+    if (!queryParams.destination_id || !queryParams.checkIn || !queryParams.checkOut || !queryParams.guests) {
       return res.status(400).json({ error: 'Missing required search parameters' });
     }
 
-    const formattedParams = hotelModel.formatSearchParams(searchCriteria);
-    const hotels = await hotelModel.searchHotels(formattedParams);
-    console.log(formattedParams);
+    const hotelListings = await hotelController.getHotelListings(queryParams);
 
-    // Process hotel images
-    const processedHotels = hotels.map(hotel => hotelModel.processHotelImages(hotel));
-
-    res.json(processedHotels);
+    res.json(hotelListings);
   } catch (error) {
     console.error('Error searching hotels:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.get('/hotels/:hotelId/price', async (req, res) => {
   try {
