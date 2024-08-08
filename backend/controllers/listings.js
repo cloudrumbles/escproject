@@ -1,6 +1,6 @@
 const HotelModel = require('../models/HotelModel');
 
-async function getSimplifiedHotelData(params) {
+async function getEnhancedHotelData(params) {
   const hotelModel = new HotelModel();
   
   try {
@@ -12,13 +12,35 @@ async function getSimplifiedHotelData(params) {
       return [];
     }
 
-    const simplifiedHotels = searchResults.map(hotel => ({
-      id: hotel.id,
-      price: hotel.converted_price
+    // Limit to first 10 hotels
+    const limitedResults = searchResults.slice(0, 10);
+    console.log(`Processing details for first ${limitedResults.length} hotels...`);
+
+    const enhancedHotels = await Promise.all(limitedResults.map(async (hotel) => {
+      try {
+        const details = await hotelModel.getHotelDetails(hotel.id);
+        return {
+          id: hotel.id,
+          price: hotel.converted_price,
+          imageUrl: details.image_details ? `${details.image_details.prefix}1${details.image_details.suffix}` : null,
+          starRating: details.rating || null,
+          guestRating: details.trustyou?.score?.overall || null
+        };
+      } catch (error) {
+        console.error(`Error fetching details for hotel ${hotel.id}:`, error.message);
+        // Return basic info if details fetch fails
+        return {
+          id: hotel.id,
+          price: hotel.converted_price,
+          imageUrl: null,
+          starRating: null,
+          guestRating: null
+        };
+      }
     }));
 
-    console.log(`Processed ${simplifiedHotels.length} hotels`);
-    return simplifiedHotels;
+    console.log(`Processed ${enhancedHotels.length} hotels`);
+    return enhancedHotels;
   } catch (error) {
     console.error('Error processing hotel data:', error.message);
     return [];
@@ -37,14 +59,14 @@ const params = {
   partner_id: 1
 };
 
-console.log('Starting simplified hotel data processing');
-getSimplifiedHotelData(params)
+console.log('Starting enhanced hotel data processing (limited to 10)');
+getEnhancedHotelData(params)
   .then(hotels => {
     if (hotels.length === 0) {
       console.log('No hotels found or error occurred.');
     } else {
       console.log(`Successfully processed ${hotels.length} hotels.`);
-      console.log('First few hotels:', JSON.stringify(hotels.slice(0, 5), null, 2));
+      console.log('Processed hotels:', JSON.stringify(hotels, null, 2));
     }
   })
   .catch(error => console.error('Unhandled error:', error.message));
