@@ -17,6 +17,10 @@ class HotelController {
       return await this.hotelModel.fetchPrices(params);
   }
 
+  async getRooms(hotelId, params) {
+      return await this.hotelModel.fetchRooms(hotelId, params);
+  }
+
   retrieveListingDetails(data, hotelId) {
       const hotel = data.find(hotel => hotel.id === hotelId);
       if (!hotel) return null;
@@ -51,6 +55,7 @@ class HotelController {
         return acc;
     }, []);
   }
+
 }
 
 module.exports = HotelController;

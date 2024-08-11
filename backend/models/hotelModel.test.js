@@ -1,5 +1,7 @@
 const HotelModel = require('./HotelModel');
 
+
+
 describe('HotelModel', () => {
 
   let hotelModel 
@@ -36,8 +38,16 @@ SearchParams = {
 
   describe('fetchHotelDetails', () => {
     it('should return an object with hotel details', async () => {
-      const details = await hotelModel.fetchHotelDetails('12345');
+      const details = await hotelModel.fetchHotelDetails('DiH7');
       expect(typeof details).toBe('object');
+    });
+  })
+
+  describe('fetchRooms', () => {
+    it('should return an array of rooms', async () => {
+      const rooms = await hotelModel.fetchRooms('diH7', SearchParams);
+      console.log(rooms);
+      expect(rooms.length).toBeGreaterThan(0);
     });
   })
 });

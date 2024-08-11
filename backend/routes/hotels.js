@@ -48,4 +48,33 @@ router.get('/hotels/:destination_id', async (req, res) => {
   }
 });
 
+router.get('/hotels/:hotel_id/rooms', async (req, res) => {
+  try {
+    const { hotel_id } = req.params
+    const queryParams = {
+      destination_id: req.query.destination_id,
+      checkin: req.query.checkin,
+      checkout: req.query.checkout,
+      guests: req.query.guests,
+      lang: req.query.language || 'en_US',
+      currency: req.query.currency || 'SGD',
+      country_code: req.query.country_code || 'SG',
+      partner_id: 1 // Assuming this is a constant value
+    };
+    
+    // Validate required parameters
+    if (!queryParams.destination_id || !queryParams.checkin || !queryParams.checkout || !queryParams.guests) {
+      return res.status(400).json({ error: 'Missing required search parameters' });
+    }
+
+    const rooms = await hotelController.getRooms(hotel_id, queryParams);
+
+    res.json(rooms);
+  } catch (error) {
+    console.error('Error searching hotels:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 module.exports = router;
