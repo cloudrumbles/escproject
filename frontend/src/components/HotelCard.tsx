@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { HotelCardProps } from '../types';
 
 const HotelCard: React.FC<HotelCardProps> = ({
@@ -12,9 +12,11 @@ const HotelCard: React.FC<HotelCardProps> = ({
   imageUrl,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
-    navigate(`/hotel/${id}`);
+    // Navigate to the hotel details page with the hotel ID in the path and preserved search params
+    navigate(`/hotels/${id}/rooms${location.search}`);
   };
 
   return (

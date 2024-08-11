@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useParams, useLocation } from 'react-router-dom';
 import { MapPin, Star, Wifi, Coffee, Tv, AirVent } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -51,11 +52,13 @@ const HotelDetails: React.FC = () => {
   const [hotel, setHotel] = useState<HotelDetails | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchHotelDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/hotels/diH7');
+        const response = await axios.get(`http://localhost:3001/api/hotels/${id}`);
         setHotel(response.data);
       } catch (error) {
         console.error('Error fetching hotel details:', error);
@@ -65,18 +68,7 @@ const HotelDetails: React.FC = () => {
 
     const fetchRoomPricing = async () => {
       try {
-        // Example query parameters - you might want to make these dynamic
-        const params = new URLSearchParams({
-          destination_id: 'WD0M',
-          checkin: '2024-10-01',
-          checkout: '2024-10-07',
-          guests: '2',
-          language: 'en_US',
-          currency: 'SGD',
-          country_code: 'SG'
-        });
-
-        const response = await axios.get(`http://localhost:3001/api/hotels/diH7/rooms?${params}`);
+        const response = await axios.get(`http://localhost:3001/api/hotels/${id}/rooms${location.search}`);
         setRooms(response.data);
       } catch (error) {
         console.error('Error fetching room pricing:', error);
@@ -84,10 +76,13 @@ const HotelDetails: React.FC = () => {
       }
     };
 
-    fetchHotelDetails();
-    fetchRoomPricing();
-  }, []);
+    if (id) {
+      fetchHotelDetails();
+      fetchRoomPricing();
+    }
+  }, [id, location.search]);
 
+  
   if (error) {
     return <div className="text-center text-red-500">{error}</div>;
   }
