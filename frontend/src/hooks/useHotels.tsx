@@ -14,7 +14,7 @@ const useHotels = (initialSearchParams: SearchParams) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get<HotelCardProps[]>('/hotels', {
+      const response = await api.get<HotelCardProps[]>('/hotels/search', {
         params: searchParams
       });
       setHotels(response.data);

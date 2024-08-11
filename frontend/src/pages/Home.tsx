@@ -34,10 +34,7 @@ interface GuestRoomInputProps {
 
 // Mock data
 const CITIES: readonly City[] = [
-  "New York", "London", "Paris", "Tokyo", "Sydney", 
-  "Berlin", "Rome", "Madrid", "Moscow", "Beijing",
-  "Amsterdam", "Vienna", "Prague", "Istanbul", "Dubai", 
-  "Singapore", "Bangkok", "Seoul", "Mumbai", "Cairo"
+  "WD0M"
 ] as const;
 
 // SearchInput component

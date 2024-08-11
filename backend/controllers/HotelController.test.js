@@ -1,12 +1,14 @@
 const HotelController = require('../controllers/HotelController');
 
+jest.setTimeout(20000);
+
 describe('HotelController', () => {
   let hotelController;
 
   const queryParams = {
     destination_id: 'WD0M',
-    checkin: '2024-10-01',
-    checkout: '2024-10-07',
+    checkin: '2024-10-05',
+    checkout: '2024-10-17',
     lang: 'en_US',
     currency: 'SGD',
     country_code: 'SG',

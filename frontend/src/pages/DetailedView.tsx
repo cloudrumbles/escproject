@@ -9,7 +9,7 @@ const DetailedView: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:3100/api/data2/${id}`)
+      fetch(`http://localhost:3001/api/hotels/${id}`)
         .then(response => response.json())
         .then(data => setHotelData(data))
         .catch(error => console.error('Error fetching hotel data:', error));

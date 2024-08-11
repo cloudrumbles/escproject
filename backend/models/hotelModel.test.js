@@ -23,7 +23,6 @@ SearchParams = {
   describe('fetchHotels', () => {
         it('should return an array of hotels', async () => {
       const hotels = await hotelModel.fetchHotels('RsBU');
-      console.log(hotels);
       expect(hotels.length).toBeGreaterThan(0);
     });
   })
@@ -31,8 +30,14 @@ SearchParams = {
   describe('fetchPrices', () => {
     it('should return an array of prices', async () => {
       const prices = await hotelModel.fetchPrices(SearchParams);
-      console.log(prices);
       expect(prices.length).toBeGreaterThan(0);
+    });
+  })
+
+  describe('fetchHotelDetails', () => {
+    it('should return an object with hotel details', async () => {
+      const details = await hotelModel.fetchHotelDetails('12345');
+      expect(typeof details).toBe('object');
     });
   })
 });

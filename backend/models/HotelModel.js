@@ -34,7 +34,6 @@ class HotelModel {
       let completed = false;
       let hotels = [];
 
-      
       while (!completed) {
         const response = await axios.get(`${this.baseUrl}/hotels/prices`, { params });
         const data = response.data;
@@ -55,27 +54,6 @@ class HotelModel {
       return hotels;
     } catch (error) {
       console.error('Error searching hotels:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get the price for a specific hotel.
-   * @async
-   * @param {string} hotelId - The ID of the hotel.
-   * @param {Object} params - Additional parameters for the request.
-   * @returns {Promise<Object>} A promise that resolves to the hotel price data.
-   * @throws {Error} If there's an error during the API request or if the response is invalid.
-   */
-  async getHotelPrice(hotelId, params) {
-    try {
-      const response = await axios.get(`${this.baseUrl}/hotels/${hotelId}/price`, { params });
-      if (!response.data || typeof response.data !== 'object' || !Array.isArray(response.data.rooms)) {
-        throw new Error(`Invalid response for hotel ID: ${hotelId}`);
-      }
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching price for hotel ${hotelId}:`, error);
       throw error;
     }
   }
@@ -107,7 +85,7 @@ class HotelModel {
    * @returns {Promise<Object>} A promise that resolves to the hotel details.
    * @throws {Error} If there's an error during the API request or if the response is invalid.
    */
-  async getHotelDetails(hotelId) {
+  async fetchHotelDetails(hotelId) {
     try {
       const response = await axios.get(`${this.baseUrl}/hotels/${hotelId}`);
       if (!response.data || typeof response.data !== 'object') {
