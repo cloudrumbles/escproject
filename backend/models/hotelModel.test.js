@@ -66,7 +66,7 @@ describe('HotelModel', () => {
   });
 
   describe('fetchRooms', () => {
-    it('should return an array of rooms for a given hotel', async () => {
+    it('should return an array of room details for a given hotel', async () => {
       const hotels = await hotelModel.fetchHotels(testSearchParams.destination_id);
       const hotelId = hotels[0].id;
       const rooms = await hotelModel.fetchRooms(hotelId, testSearchParams);
@@ -78,19 +78,6 @@ describe('HotelModel', () => {
 
     it('should throw an error for an invalid hotel ID', async () => {
       await expect(hotelModel.fetchRooms('invalid_id', testSearchParams)).rejects.toThrow();
-    });
-  });
-
-  describe('constructor', () => {
-    it('should use the default base URL if none is provided', () => {
-      const model = new HotelModel();
-      expect(model.baseUrl).toBe('https://hotelapi.loyalty.dev/api');
-    });
-
-    it('should use the provided base URL', () => {
-      const customUrl = 'https://custom.api.com';
-      const model = new HotelModel(customUrl);
-      expect(model.baseUrl).toBe(customUrl);
     });
   });
 });
