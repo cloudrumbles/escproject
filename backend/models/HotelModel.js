@@ -29,10 +29,11 @@ class HotelModel {
    * @returns {Promise<Array>} A promise that resolves to an array of hotel objects.
    * @throws {Error} If there's an error during the API request or if the response is invalid.
    */
-  async searchHotels(params) {
+  async fetchPrices(params) {
     try {
       let completed = false;
       let hotels = [];
+
       
       while (!completed) {
         const response = await axios.get(`${this.baseUrl}/hotels/prices`, { params });
@@ -86,7 +87,7 @@ class HotelModel {
    * @returns {Promise<Array>} A promise that resolves to an array of hotel objects.
    * @throws {Error} If there's an error during the API request or if the response is invalid.
    */
-  async getHotelsForDestination(destinationId) {
+  async fetchHotels(destinationId) {
     try {
       const response = await axios.get(`${this.baseUrl}/hotels`, { params: { destination_id: destinationId } });
       if (!Array.isArray(response.data)) {

@@ -1,30 +1,50 @@
 const HotelModel = require('../models/HotelModel');
 
-
 class HotelController {
     constructor() {
         this.hotelModel = new HotelModel();
     }
 
-    createHotelListings(hotelDetails, hotelPrices) {
-        return hotelDetails.map(hotel => {
-          const pricing = hotelPrices.find(price => price.id === hotel.id);
-          
-          if (!pricing) {
-            return null; // Skip hotels without pricing information
-          }
-      
-          return {
+    async getHotels(destination_id) {
+        return await this.hotelModel.fetchHotels(destination_id);
+    }
+
+    async getPrices(params) {
+        return await this.hotelModel.fetchPrices(params);
+    }
+
+    retrieveListingDetails(data, hotelId) {
+        const hotel = data.find(hotel => hotel.id === hotelId);
+        if (!hotel) return null;
+
+        return {
             id: hotel.id,
             name: hotel.name,
             starRating: hotel.rating,
-            guestRating: parseFloat(hotel.trustyou.score.kaligo_overall) || 0,
-            price: pricing.converted_price,
-            imageUrl: `${hotel.cloudflare_image_url}/${hotel.id}/${hotel.default_image_index}.jpg`
-          };
-        }).filter(listing => listing !== null);
-      }
+            guestRating: hotel.trustyou.score.overall,
+            imageUrl: `${hotel.image_details.prefix}${hotel.default_image_index}${hotel.image_details.suffix}`
+        };
+    }
 
+    async createHotelListings(params) {
+      const hotels = await this.getHotels(params.destination_id);
+      const prices = await this.getPrices(params);
+  
+      return prices.reduce((acc, price) => {
+          const details = this.retrieveListingDetails(hotels, price.id);
+          if (details) {
+              acc.push({
+                  id: price.id,
+                  name: details.name,
+                  price: price.converted_price,
+                  imageUrl: details.imageUrl,
+                  starRating: details.starRating,
+                  guestRating: details.guestRating
+              });
+          }
+          return acc;
+      }, []);
+  }
 }
 
-
+module.exports = HotelController;
